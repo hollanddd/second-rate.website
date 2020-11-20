@@ -43,8 +43,6 @@ export class SecondRateWebsiteStack extends cdk.Stack {
     })
 
     const bucket = new Bucket(this, 'StaticSiteBucket', {
-      websiteIndexDocument: 'index.html',
-      websiteErrorDocument: 'index.html',
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       publicReadAccess: false,
       blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
@@ -57,7 +55,13 @@ export class SecondRateWebsiteStack extends cdk.Stack {
     bucket.grantRead(originAccessIdentity);
 
     const distribution = new CloudFrontWebDistribution(this, 'WebDistribution', {
-      viewerCertificate: ViewerCertificate.fromAcmCertificate(cert),
+      viewerCertificate: {
+        aliases: [domainName],
+        props: {
+          acmCertificateArn: cert.certificateArn,
+          sslSupportMethod: 'sni-only',
+        },
+      },
       originConfigs: [
         {
           s3OriginSource: {
@@ -65,7 +69,7 @@ export class SecondRateWebsiteStack extends cdk.Stack {
             originAccessIdentity,
           },
           behaviors: [{isDefaultBehavior: true}]
-        },
+        }
       ]
     });
 
