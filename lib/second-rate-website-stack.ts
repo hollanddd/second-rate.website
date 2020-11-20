@@ -2,6 +2,7 @@ import * as cdk from '@aws-cdk/core';
 import * as acm from '@aws-cdk/aws-certificatemanager';
 import * as route53 from '@aws-cdk/aws-route53';
 import { CloudFrontTarget } from '@aws-cdk/aws-route53-targets';
+import * as s3Deployment from '@aws-cdk/aws-s3-deployment';
 
 import {
   Bucket,
@@ -72,6 +73,13 @@ export class SecondRateWebsiteStack extends cdk.Stack {
       zone: hostedZone,
       recordName: domainName,
       target: route53.RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
+    });
+
+    new s3Deployment.BucketDeployment(this, 'WebDeployment', {
+      sources: [s3Deployment.Source.asset('./website/dist')],
+      destinationBucket: bucket,
+      distribution,
+      distributionPaths: ['/*'],
     });
   }
 }
