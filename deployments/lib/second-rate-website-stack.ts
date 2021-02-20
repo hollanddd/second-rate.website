@@ -80,7 +80,7 @@ export class SecondRateWebsiteStack extends cdk.Stack {
     });
 
     new s3Deployment.BucketDeployment(this, 'WebDeployment', {
-      sources: [s3Deployment.Source.asset('./website/dist')],
+      sources: [s3Deployment.Source.asset('../website/build')],
       destinationBucket: bucket,
       distribution,
       distributionPaths: ['/*'],
