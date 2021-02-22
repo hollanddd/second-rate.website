@@ -12,7 +12,6 @@ import {
 import {
   CloudFrontWebDistribution,
   OriginAccessIdentity,
-  ViewerCertificate,
 } from '@aws-cdk/aws-cloudfront';
 
 export class SecondRateWebsiteStack extends cdk.Stack {
