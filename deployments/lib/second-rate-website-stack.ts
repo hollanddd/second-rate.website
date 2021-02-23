@@ -3,6 +3,9 @@ import * as acm from '@aws-cdk/aws-certificatemanager';
 import * as route53 from '@aws-cdk/aws-route53';
 import { CloudFrontTarget } from '@aws-cdk/aws-route53-targets';
 import * as s3Deployment from '@aws-cdk/aws-s3-deployment';
+import * as lambda from '@aws-cdk/aws-lambda';
+import * as apigw from '@aws-cdk/aws-apigateway';
+import { HitCounter } from './hitcounter';
 
 import {
   Bucket,
@@ -83,6 +86,19 @@ export class SecondRateWebsiteStack extends cdk.Stack {
       destinationBucket: bucket,
       distribution,
       distributionPaths: ['/*'],
+    });
+
+    // API Gateway & Lambda function configuration
+    const counter = new HitCounter(this, 'HitCounter', {
+      downstream: new lambda.Function(this, 'CountHandler', {
+        runtime: lambda.Runtime.NODEJS_12_X,
+        code: lambda.Code.fromAsset('../api'),
+        handler: 'count.handler',
+      }),
+    });
+
+    new apigw.LambdaRestApi(this, 'SecondRateAPI', {
+      handler: counter.handler,
     });
   }
 }
