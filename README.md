@@ -1,14 +1,26 @@
-# Welcome to your CDK TypeScript project!
+# Second Rate Website
 
-This is a blank project for TypeScript development with CDK.
+A breakable toy for experimenting with React and AWS CDK
 
-The `cdk.json` file tells the CDK Toolkit how to execute your app.
+This isn't designed for use by others but could be deployed in several steps:
 
-## Useful commands
+- build cloud resource
+  - `cd deployments && npm install && npm run build`
+  - this step might complain if you are missing `website/build`
 
- * `npm run build`   compile typescript to js
- * `npm run watch`   watch for changes and compile
- * `npm run test`    perform the jest unit tests
- * `cdk deploy`      deploy this stack to your default AWS account/region
- * `cdk diff`        compare deployed stack with current state
- * `cdk synth`       emits the synthesized CloudFormation template
+- deploy with CloudFormation parameters
+  - `cdk deploy StackName --parameters DomainName=something.com`
+
+- provision certificate
+  - this takes some time for AWS to perform DNS validation
+
+- create `.env` in the website directory with API endpoint provided in the output
+
+- build the website with `npm run build`
+
+- run `cdk deploy` again to deploy the contents of the build directory
+
+## TODO
+
+- use actions for website deployments
+- use [pipelines](https://github.com/aws/aws-cdk-rfcs/blob/master/text/0049-continuous-delivery.md) for deployments
