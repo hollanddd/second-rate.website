@@ -19,14 +19,19 @@ exports.handler = async function(event) {
     Payload: JSON.stringify(event)
   }).promise()
 
-  console.log('update response:', JSON.stringify(upd, undefined, 2));
-  console.log('downstream response:', JSON.stringify(resp, undefined, 2));
-
-  // merge count from update into downstream response
-  let current = parseInt(upd.Attributes.hits.N)
+  // unmarshal json payload and add response headers
   let payload = JSON.parse(resp.Payload);
+  payload.headers = {
+    "Access-Control-Allow-Headers": "*",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Methods": "OPTIONS,GET",
+  }
+
+  // unmarshal the payload body and apply the current count
   let body = JSON.parse(payload.body);
-  body.count = current
+  body.count = parseInt(upd.Attributes.hits.N)
+
+  // marshal the json payload and return
   payload.body = JSON.stringify(body)
   return payload
 }
