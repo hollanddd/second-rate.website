@@ -1,4 +1,5 @@
 import './App.css';
+import Footer from './footer';
 
 function App() {
   return (
@@ -6,6 +7,7 @@ function App() {
       <header>
         <h1>This is a second rate website.</h1>
       </header>
+      <Footer />
     </div>
   );
 }
