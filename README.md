@@ -2,23 +2,53 @@
 
 A breakable toy for experimenting with React and AWS CDK
 
-This isn't designed for use by others but could be deployed in several steps:
+## Directory Structure
 
-- build cloud resource
-  - `cd deployments && npm install && npm run build`
-  - this step might complain if you are missing `website/build`
+`deployments`   - AWS CDK TypeScript project resources
+`website/build` - default build directory for CDK S3 deployment
 
-- deploy with CloudFormation parameters
-  - `cdk deploy StackName --parameters DomainName=something.com`
+## Runtime
 
-- provision certificate
-  - this takes some time for AWS to perform DNS validation
+- `node12` & `npm`
 
-- create `.env` in the website directory with API endpoint provided in the output
+### Deployments
 
-- build the website with `npm run build`
+- `@aws-cdk` - Infrastructure
+- `@aws-sdk` - Hit counter update command & Lambda Invoke
 
-- run `cdk deploy` again to deploy the contents of the build directory
+### Website
+
+The deployment is designed to sync the contents of `website/build` and expects
+to find an index.html that acts as the root of the website. A slightly modified
+`create-react-app` is included for displaying the hit count.
+
+## Set Up
+
+_The guide assumes that you have an AWS account and have properly configured
+permissions for deploying resources using the AWS CDK._
+
+Install deployment dependencies and build Lambda functions:
+
+`cd deployments && npm install && npm run build`
+
+Install website dependencies and build React application:
+
+`cd websites && npm isntall && npm run build`
+
+## Deploy AWS Resources
+
+```bash
+cdk deploy MyStack                      \\
+  --parameters DomainName=something.com \\
+  --parameters HostedZoneId=somezone    \\
+```
+
+Certificate provisioning will take some time to complete. If provisioning fails
+the deployment will clean itself up thanks to AWS CDK.
+
+You will need create `.env` in the website directory with API endpoint provided
+by the output of `cdk deploy`. You will need to build and deploy the website
+resources to reflect the new environment.
 
 ## TODO
 
