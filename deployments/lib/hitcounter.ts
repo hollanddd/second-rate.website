@@ -13,7 +13,9 @@ export class HitCounter extends cdk.Construct {
     super(scope, id);
 
     const table = new dynamo.Table(this, 'HitsTable', {
-      partitionKey: { name: 'path', type: dynamo.AttributeType.STRING }
+      partitionKey: { name: 'path', type: dynamo.AttributeType.STRING },
+      writeCapacity: 1,
+      readCapacity: 1,
     });
 
     this.handler = new lambda.Function(this, 'HitCounterHandler', {
