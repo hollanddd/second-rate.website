@@ -4,6 +4,10 @@ import { LambdaClient, InvokeCommand, InvokeCommandOutput } from '@aws-sdk/clien
 const dbc: DynamoDBClient = new DynamoDBClient({});
 const lc: LambdaClient = new LambdaClient({});
 
+function uint8arrayToStringMethod(myUint8Arr: any): string {
+   return String.fromCharCode.apply(null, myUint8Arr);
+}
+
 // incrementCount adds to the number of hits for the given path
 async function incrementCount(path: string): Promise<number> {
   try {
@@ -56,7 +60,7 @@ exports.handler = async function(event: any) {
       invokeDownstream(Uint8Array.from(event))
     ]);
 
-    let payload = JSON.parse(resp.Payload?.toString() || '');
+    let payload = JSON.parse(uint8arrayToStringMethod(resp.Payload));
     payload = addCorsHeaders(payload);
     payload = addHitCountToPayloadBody(payload, count);
     return payload;

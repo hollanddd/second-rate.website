@@ -92,7 +92,7 @@ export class SecondRateWebsiteStack extends cdk.Stack {
     const counter = new HitCounter(this, 'HitCounter', {
       downstream: new lambda.Function(this, 'CountHandler', {
         runtime: lambda.Runtime.NODEJS_12_X,
-        code: lambda.Code.fromAsset('./lambda/counter'),
+        code: new lambda.AssetCode('./src'),
         handler: 'count.handler',
       }),
     });

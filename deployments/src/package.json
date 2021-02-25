@@ -1,0 +1,17 @@
+{
+  "name": "api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.6.1",
+    "@aws-sdk/client-lambda": "^3.6.1",
+    "@aws-sdk/types": "^3.6.1",
+    "@types/node": "^14.14.31"
+  }
+}
