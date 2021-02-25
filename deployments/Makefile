@@ -6,10 +6,17 @@ killcache:
 
 install:
 	npm install
+
+build:
+	npm run build
+
 diff:
 	cdk diff --profile muh-cloud
 
-deploy:
+deploy: build
 	cdk deploy --profile muh-cloud
 
 fixnpm: cleannode killcache install
+
+synth: build
+	cdk synth --profile muh-cloud
