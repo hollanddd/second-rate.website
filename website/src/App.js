@@ -20,7 +20,7 @@ function App() {
       </ul>
       <h2>This satire is a work in progress, you fuck.</h2>
       <p>
-        <a href="https://github.com/hollanddd/second-reate.website">Improve this shit</a> or <a href="https://github.com/hollanddd/second-rate.website/blob/master/LICENSE">do what the f*ck you want to</a>.
+        <a href="https://github.com/hollanddd/second-rate.website">Improve this shit</a> or <a href="https://github.com/hollanddd/second-rate.website/blob/master/LICENSE">do what the f*ck you want to</a>.
       </p>
       <blockquote>
         <p>"All right. Now, to start off, I want you to read these books."<br />-- Some Owl</p>
