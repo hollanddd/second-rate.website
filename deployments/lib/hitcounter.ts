@@ -3,7 +3,8 @@ import * as lambda from '@aws-cdk/aws-lambda'
 import * as dynamo from '@aws-cdk/aws-dynamodb'
 
 export interface HitCounterProps {
-  downstream: lambda.IFunction;
+  downstream: lambda.IFunction
+  origin: string
 }
 
 export class HitCounter extends cdk.Construct {
@@ -25,6 +26,7 @@ export class HitCounter extends cdk.Construct {
       environment: {
         HIT_TABLE: table.tableName,
         DOWNSTREAM_FUNCTION_NAME: props.downstream.functionName,
+        ORIGIN: props.origin,
       }
     })
 

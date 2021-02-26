@@ -59,6 +59,11 @@ export class SecondRateWebsiteStack extends cdk.Stack {
     bucket.grantRead(originAccessIdentity);
 
     const distribution = new CloudFrontWebDistribution(this, 'WebDistribution', {
+      errorConfigurations: [{
+        errorCode: 404,
+        responseCode: 200,
+        responsePagePath: '/index.html'
+      }],
       viewerCertificate: {
         aliases: [domainName],
         props: {
@@ -92,6 +97,7 @@ export class SecondRateWebsiteStack extends cdk.Stack {
 
     // API Gateway & Lambda function configuration
     const counter = new HitCounter(this, 'HitCounter', {
+      origin: `https://${domainName}`,
       downstream: new lambda.Function(this, 'CountHandler', {
         runtime: lambda.Runtime.NODEJS_12_X,
         code: new lambda.AssetCode('./src'),

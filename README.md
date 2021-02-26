@@ -46,10 +46,6 @@ cdk deploy MyStack                      \\
 Certificate provisioning will take some time to complete. If provisioning fails
 the deployment will clean itself up thanks to AWS CDK.
 
-You will need create `.env` in the website directory with API endpoint provided
-by the output of `cdk deploy`. You will need to build and deploy the website
-resources to reflect the new environment.
-
 ## TODO
 
 - use actions for website deployments

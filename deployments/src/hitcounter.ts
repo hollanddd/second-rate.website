@@ -4,6 +4,13 @@ import { LambdaClient, InvokeCommand, InvokeCommandOutput } from '@aws-sdk/clien
 const dbc: DynamoDBClient = new DynamoDBClient({});
 const lc: LambdaClient = new LambdaClient({});
 
+// origin allows passing cors origin from a cloud fromation stack. This is a hack
+// because cdk doesn't allow us to call `addMethod` to a proxied gateway defition
+//
+// One option would be to use rest api w/out a proxy. The proxy path is stored
+// in the hits table so here we are.
+const origin: string = process.env.ORIGIN || "*"
+
 function uint8arrayToStringMethod(myUint8Arr: any): string {
    return String.fromCharCode.apply(null, myUint8Arr);
 }
@@ -38,7 +45,7 @@ async function invokeDownstream(payload: Uint8Array): Promise<InvokeCommandOutpu
 function addCorsHeaders(payload: any): any {
   payload.headers = {
     "Access-Control-Allow-Headers": "*",
-    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Origin": origin,
     "Access-Control-Allow-Methods": "OPTIONS,GET",
   }
   return payload
