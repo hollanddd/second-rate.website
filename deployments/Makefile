@@ -10,10 +10,10 @@ install:
 build:
 	npm run build
 
-diff:
+diff: synth
 	cdk diff --profile muh-cloud
 
-deploy: build
+deploy: synth
 	cdk deploy --profile muh-cloud
 
 fixnpm: cleannode killcache install
