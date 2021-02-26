@@ -1,7 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import * as acm from '@aws-cdk/aws-certificatemanager';
 import * as route53 from '@aws-cdk/aws-route53';
-import { CloudFrontTarget } from '@aws-cdk/aws-route53-targets';
+import { CloudFrontTarget, ApiGatewayDomain } from '@aws-cdk/aws-route53-targets';
 import * as s3Deployment from '@aws-cdk/aws-s3-deployment';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as apigw from '@aws-cdk/aws-apigateway';
@@ -39,10 +39,12 @@ export class SecondRateWebsiteStack extends cdk.Stack {
       zoneName: domainName
     })
 
+    const subjectAlternativeNames = [`*.${domainName}`];
     const cert = new acm.DnsValidatedCertificate(this, 'AwsManagedCertificate', {
       domainName,
-      hostedZone
-    })
+      hostedZone,
+      subjectAlternativeNames,
+    });
 
     const bucket = new Bucket(this, 'StaticSiteBucket', {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
@@ -97,8 +99,22 @@ export class SecondRateWebsiteStack extends cdk.Stack {
       }),
     });
 
-    new apigw.LambdaRestApi(this, 'SecondRateAPI', {
-      handler: counter.handler,
+    const hits = new apigw.LambdaRestApi(this, 'SecondRateAPI', {
+      handler: counter.handler
+    });
+
+    // Configure hits API on subdomain
+    const hitsDomain = `hits.${domainName}`;
+    const hitsDomainName = hits.addDomainName('HitsAPIDomainName', {
+      certificate: cert,
+      domainName: hitsDomain,
+      endpointType: apigw.EndpointType.EDGE,
+    })
+
+    new route53.ARecord(this, 'HitsAliasRecord', {
+      zone: hostedZone,
+      recordName: 'hits',
+      target: route53.RecordTarget.fromAlias(new ApiGatewayDomain(hitsDomainName))
     });
   }
 }
