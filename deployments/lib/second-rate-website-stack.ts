@@ -58,7 +58,22 @@ export class SecondRateWebsiteStack extends cdk.Stack {
 
     bucket.grantRead(originAccessIdentity);
 
+    const logstash = new Bucket(this, 'StaticSiteLogsBucket', {
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      publicReadAccess: false,
+      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
+      lifecycleRules: [{
+        enabled: true,
+        expiration: cdk.Duration.days(14),
+      }]
+    })
+
     const distribution = new CloudFrontWebDistribution(this, 'WebDistribution', {
+      loggingConfig: {
+        bucket: logstash,
+        prefix: 'cdn/website',
+        includeCookies: false,
+      },
       errorConfigurations: [{
         errorCode: 404,
         responseCode: 200,
