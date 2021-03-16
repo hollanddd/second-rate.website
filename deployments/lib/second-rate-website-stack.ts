@@ -6,33 +6,21 @@ import * as s3Deployment from '@aws-cdk/aws-s3-deployment';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as apigw from '@aws-cdk/aws-apigateway';
 import { HitCounter } from './hitcounter';
-
-import {
-  Bucket,
-  BlockPublicAccess,
-} from '@aws-cdk/aws-s3';
-
-import {
-  CloudFrontWebDistribution,
-  OriginAccessIdentity,
-} from '@aws-cdk/aws-cloudfront';
+import { Website } from 'cdk-construct-website';
 
 export class SecondRateWebsiteStack extends cdk.Stack {
   constructor(scope: cdk.Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const domain = new cdk.CfnParameter(this, 'DomainName', {
+    const domainName = new cdk.CfnParameter(this, 'DomainName', {
       type: 'String',
       description: 'Domain name',
-    })
+    }).valueAsString;
 
-    const zoneId = new cdk.CfnParameter(this, 'HostedZoneId', {
+    const hostedZoneId = new cdk.CfnParameter(this, 'HostedZoneId', {
       type: 'String',
       description: 'Hosted Zone Id'
-    })
-
-    const domainName = domain.valueAsString
-    const hostedZoneId = zoneId.valueAsString
+    }).valueAsString;
 
     const hostedZone = route53.HostedZone.fromHostedZoneAttributes(this, 'HostedZone', {
       hostedZoneId,
@@ -46,67 +34,21 @@ export class SecondRateWebsiteStack extends cdk.Stack {
       subjectAlternativeNames,
     });
 
-    const bucket = new Bucket(this, 'StaticSiteBucket', {
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      publicReadAccess: false,
-      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-    });
-
-    const originAccessIdentity = new OriginAccessIdentity(this, 'OriginAccessIdentity', {
-      comment: `OAI for ${domainName} website`
-    });
-
-    bucket.grantRead(originAccessIdentity);
-
-    const logstash = new Bucket(this, 'StaticSiteLogsBucket', {
-      removalPolicy: cdk.RemovalPolicy.DESTROY,
-      publicReadAccess: false,
-      blockPublicAccess: BlockPublicAccess.BLOCK_ALL,
-      lifecycleRules: [{
-        enabled: true,
-        expiration: cdk.Duration.days(14),
-      }]
-    })
-
-    const distribution = new CloudFrontWebDistribution(this, 'WebDistribution', {
-      loggingConfig: {
-        bucket: logstash,
-        prefix: 'cdn/website',
-        includeCookies: false,
-      },
-      errorConfigurations: [{
-        errorCode: 404,
-        responseCode: 200,
-        responsePagePath: '/index.html'
-      }],
-      viewerCertificate: {
-        aliases: [domainName],
-        props: {
-          acmCertificateArn: cert.certificateArn,
-          sslSupportMethod: 'sni-only',
-        },
-      },
-      originConfigs: [
-        {
-          s3OriginSource: {
-            s3BucketSource: bucket,
-            originAccessIdentity,
-          },
-          behaviors: [{isDefaultBehavior: true}]
-        }
-      ]
+    const website = new Website(this, 'SecondRateWebsite', {
+      domainName,
+      certificateArn: cert.certificateArn,
     });
 
     new route53.ARecord(this, 'WebAliasRecord', {
       zone: hostedZone,
       recordName: domainName,
-      target: route53.RecordTarget.fromAlias(new CloudFrontTarget(distribution)),
+      target: route53.RecordTarget.fromAlias(new CloudFrontTarget(website.distribution)),
     });
 
     new s3Deployment.BucketDeployment(this, 'WebDeployment', {
       sources: [s3Deployment.Source.asset('../website/build')],
-      destinationBucket: bucket,
-      distribution,
+      destinationBucket: website.bucket,
+      distribution: website.distribution,
       distributionPaths: ['/*'],
     });
 
