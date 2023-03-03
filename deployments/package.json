@@ -26,7 +26,7 @@
     "@aws-cdk/aws-dynamodb": "^1.93.0",
     "@aws-cdk/aws-lambda": "^1.93.0",
     "@aws-cdk/aws-route53-targets": "^1.93.0",
-    "@aws-cdk/aws-s3-deployment": "^1.93.0",
+    "@aws-cdk/aws-s3-deployment": "^1.195.0",
     "@aws-cdk/core": "^1.94.1",
     "cdk-construct-website": "^0.0.5",
     "source-map-support": "^0.5.16"
